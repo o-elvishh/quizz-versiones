@@ -107,10 +107,9 @@
   </div>
 
 <script>
-  // ⚠️ PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ ⚠️
+  // ⚠️ TU URL AQUÍ ⚠️
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
 
-  // --- PREGUNTAS SINCRONIZADAS ---
   const questions = [
     { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla según el texto?", opts: ["Demostrar superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Terminar exactamente a tiempo"], ans: 1 },
     { q: "¿Por qué el autor afirma que detallar la historia interna de tu laboratorio es un error?", opts: ["Porque es información confidencial", "Porque es aburrido para casi todos los demás", "Porque nadie cree en el éxito ajeno", "Porque las fotos de edificios distraen"], ans: 1 },
@@ -144,8 +143,8 @@
     fetch(SCRIPT_URL, { method:'POST', body:fd });
     switchView('view-wait');
     
-    // 🔥 MODO TURBO: Actualizar cada 500ms (0.5 segundos) 🔥
-    setInterval(pollServer, 700);
+    // 🛡️ ACTUALIZACIÓN RÁPIDA: 500ms
+    setInterval(pollServer, 500);
   }
 
   async function pollServer() {
@@ -160,26 +159,29 @@
     const serverState = data.state;
     const players = data.players || [];
 
-    // DETECCIÓN DE FINAL (Para mostrar premios/castigos)
+    // FINAL
     if (serverState === "FINAL" && lastKnownState !== "FINAL") {
       lastKnownState = serverState;
       showFinalResult(players);
       return;
     }
 
-    if (serverState === lastKnownState && serverState !== "RANKING") return;
+    // Si el estado es "RANKING", lo IGNORAMOS en la UI del jugador.
+    // Esto mantiene la pantalla anterior (Feedback) visible.
+    if (serverState === "RANKING") {
+        // Actualizamos lastKnownState para que cuando llegue la PREGUNTA, se detecte el cambio.
+        lastKnownState = serverState; 
+        return; 
+    }
+
+    if (serverState === lastKnownState) return;
     lastKnownState = serverState;
 
     if (serverState === "LOBBY") { 
       resetWaitScreen();
       hasAnsweredCurrent = false; 
     } 
-    else if (serverState === "RANKING") { 
-      switchView('view-wait'); 
-      document.getElementById('wait-icon').innerText = "📊";
-      document.getElementById('wait-title').innerText = "Mira el Ranking"; 
-      document.getElementById('wait-desc').innerText = "¿Subiste o bajaste?";
-    }
+    // NOTA: EL BLOQUE "ELSE IF RANKING" FUE ELIMINADO INTENCIONALMENTE
     else if (serverState.startsWith("Q")) {
       const idx = parseInt(serverState.substring(1));
       if (idx !== lastQIdx) { 
@@ -203,15 +205,11 @@
     const title = document.getElementById('wait-title');
     const desc = document.getElementById('wait-desc');
 
-    // 1. Ordenar por puntos
     players.sort((a,b) => b[1] - a[1]);
-
-    // 2. Mi posición
     const myRank = players.findIndex(p => p[0] === myName);
     const myScore = myRank !== -1 ? players[myRank][1] : 0;
     const totalPlayers = players.length;
 
-    // 3. MENSAJES PERSONALIZADOS
     if (myRank === 0) {
       icon.innerText = "🏆";
       title.innerText = "¡FELICIDADES " + myName.toUpperCase() + "!";
@@ -228,7 +226,6 @@
       title.innerText = "¡FELICIDADES!";
       desc.innerHTML = "¡Quedaste en <b>3er Lugar</b>!<br>Entraste al podio.";
     } 
-    // 🔥 LÓGICA DE LOS 3 ÚLTIMOS (CASTIGO) 🔥
     else if (totalPlayers >= 5 && myRank >= totalPlayers - 3) {
       icon.innerText = "🤡";
       title.innerText = "¡LÁSTIMA " + myName.toUpperCase() + "!";
@@ -251,17 +248,17 @@
   }
 
   function showQuestion(idx) {
+    if (!questions[idx]) return; 
+
     const q = questions[idx];
     document.getElementById('q-num').innerText = "PREGUNTA " + (idx+1);
     document.getElementById('q-text').innerText = q.q;
     
-    // Reinicio instantáneo de la barra
     const timer = document.getElementById('visual-timer');
     timer.classList.remove('animate-timer');
     void timer.offsetWidth; 
     timer.classList.add('animate-timer');
 
-    // Renderizado instantáneo de opciones
     const area = document.getElementById('options-area');
     area.innerHTML = q.opts.map((opt, i) => 
       `<div class="opt-btn" onclick="sendAnswer(${i}, ${idx})">${opt}</div>`
