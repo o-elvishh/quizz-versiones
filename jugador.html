@@ -6,7 +6,6 @@
   <title>Participante - Quizz TED</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* --- PALETA DARK PRO --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       --card-bg: #1e293b;
@@ -16,54 +15,38 @@
       --primary-hover: #4f46e5;
       --accent-green: #10b981;
       --accent-red: #ef4444;
-      --accent-gold: #fbbf24;
       --border-color: #334155;
       --input-bg: #0f172a;
       --radius: 16px;
-      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
     * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-
-    .card { background: var(--card-bg); width: 100%; max-width: 450px; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; overflow: hidden; text-align: center; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: var(--card-bg); width: 100%; max-width: 450px; padding: 30px; border-radius: var(--radius); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid var(--border-color); text-align: center; position: relative; overflow: hidden; }
     .hidden { display: none; }
-
-    h2 { color: var(--primary); font-weight: 800; margin-top: 0; }
     
+    h2 { color: var(--primary); font-weight: 800; }
     input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1rem; margin: 20px 0; background: var(--input-bg); color: var(--text-main); text-align: center; }
-    input:focus { border-color: var(--primary); }
-    
-    button { background: linear-gradient(to right, var(--primary), var(--primary-hover)); color: white; border: none; padding: 16px; width: 100%; border-radius: 50px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: transform 0.2s; box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5); }
-    button:active { transform: scale(0.96); }
+    button { background: linear-gradient(to right, var(--primary), var(--primary-hover)); color: white; border: none; padding: 16px; width: 100%; border-radius: 50px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
 
     /* Emojis */
-    .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; position: relative; z-index: 10; }
-    .emoji-btn { cursor: pointer; padding: 10px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 1.5rem; transition: all 0.2s; user-select: none; }
-    .emoji-btn.selected { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); transform: scale(1.15); }
+    .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+    .emoji-btn { cursor: pointer; padding: 10px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 1.5rem; transition: 0.2s; }
+    .emoji-btn.selected { border-color: var(--primary); transform: scale(1.1); background: rgba(99, 102, 241, 0.2); }
 
-    /* Barra de Tiempo */
-    .timer-container { width: 100%; height: 6px; background: var(--border-color); position: absolute; top: 0; left: 0; z-index: 50; }
-    .timer-bar { width: 100%; height: 100%; background: var(--primary); transition: width 1s linear; }
+    /* Timer */
+    .timer-container { width: 100%; height: 6px; background: var(--border-color); position: absolute; top: 0; left: 0; }
+    .timer-bar { width: 100%; height: 100%; background: var(--primary); }
     .animate-timer { animation: countdown 15s linear forwards; }
     @keyframes countdown { from { width: 100%; } to { width: 0%; } }
 
     /* Opciones */
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .opt-btn { background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; cursor: pointer; text-align: left; transition: all 0.1s; }
-    .opt-btn:active { background: var(--border-color); transform: scale(0.98); }
-
-    /* Feedback */
-    .bg-green { background: var(--accent-green) !important; color: white !important; border: none !important; }
-    .bg-red { background: var(--accent-red) !important; color: white !important; border: none !important; }
-    .status-icon { font-size: 5rem; margin: 20px 0; }
+    .opt-btn { background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; cursor: pointer; text-align: left; }
     
-    #q-text { font-size: 1.15rem; line-height: 1.4; color: white; margin-bottom: 30px; }
-    .text-muted-light { color: var(--text-muted); }
-
-    /* Estilos Especiales FINAL */
-    .win-gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
-    .lose-punishment { color: var(--accent-red); font-weight: bold; font-size: 1.4rem; }
+    .status-icon { font-size: 4rem; margin-bottom: 10px; }
+    .bg-green { background: var(--accent-green) !important; }
+    .bg-red { background: var(--accent-red) !important; }
   </style>
 </head>
 <body>
@@ -71,60 +54,52 @@
   <div id="view-login" class="card">
     <h2>Elige tu Avatar</h2>
     <div class="emoji-grid" id="emoji-container">
-      <div class="emoji-btn selected">👽</div>
-      <div class="emoji-btn">🤖</div>
-      <div class="emoji-btn">🚀</div>
-      <div class="emoji-btn">🧠</div>
-      <div class="emoji-btn">🦄</div>
-      <div class="emoji-btn">🦊</div>
-      <div class="emoji-btn">😎</div>
-      <div class="emoji-btn">⚡</div>
-      <div class="emoji-btn">🐱</div>
-      <div class="emoji-btn">🍕</div>
+      <div class="emoji-btn selected">👽</div><div class="emoji-btn">🤖</div><div class="emoji-btn">🚀</div><div class="emoji-btn">🧠</div><div class="emoji-btn">🦄</div>
+      <div class="emoji-btn">🦊</div><div class="emoji-btn">😎</div><div class="emoji-btn">⚡</div><div class="emoji-btn">🐱</div><div class="emoji-btn">🍕</div>
     </div>
-    <input type="text" id="username" placeholder="Tu Nombre Completo">
-    <button onclick="register()">ENTRAR AL LOBBY</button>
+    <input type="text" id="username" placeholder="Tu Nombre">
+    <button onclick="register()">ENTRAR AL JUEGO</button>
   </div>
 
   <div id="view-wait" class="card hidden">
-    <div class="status-icon" id="wait-icon">⏳</div>
+    <div class="status-icon">⏳</div>
     <h3 id="wait-title">Esperando al Host...</h3>
-    <p class="text-muted-light" id="wait-desc">La sesión comenzará pronto</p>
+    <p id="wait-desc">La carrera comenzará pronto</p>
   </div>
 
   <div id="view-question" class="card hidden">
     <div class="timer-container"><div id="visual-timer" class="timer-bar"></div></div>
-    <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top:15px;" id="q-num">PREGUNTA</div>
-    <h2 id="q-text">¿Texto?</h2>
+    <div id="q-num" style="margin-top:15px; font-weight:bold; color:var(--primary)"></div>
+    <h2 id="q-text" style="font-size:1.2rem"></h2>
     <div id="options-area" class="options-grid"></div>
   </div>
 
   <div id="view-feedback" class="card hidden">
     <div id="fb-icon" class="status-icon"></div>
     <h2 id="fb-title"></h2>
-    <h3 id="fb-points"></h3>
-    <p style="margin-top: 20px; opacity: 0.9;">Atento a la pantalla principal</p>
+    <p>Siguiente pregunta en breve...</p>
   </div>
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
 
   const questions = [
-    { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla según el texto?", opts: ["Demostrar superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Terminar exactamente a tiempo"], ans: 1 },
-    { q: "¿Por qué el autor afirma que detallar la historia interna de tu laboratorio es un error?", opts: ["Porque es información confidencial", "Porque es aburrido para casi todos los demás", "Porque nadie cree en el éxito ajeno", "Porque las fotos de edificios distraen"], ans: 1 },
-    { q: "¿Por qué la generosidad es la mejor estrategia para un orador?", opts: ["Porque lo hace ver más humilde", "Porque evita preguntas difíciles", "Porque provoca una respuesta positiva", "Porque acorta la duración del evento"], ans: 2 },
-    { q: "El autor compara la inspiración con el amor porque:", opts: ["Es un sentimiento irracional", "Si la buscas directamente, genera rechazo", "Solo ocurre una vez en la vida", "Requiere mucha paciencia"], ans: 1 },
-    { q: "¿Cuál es la característica principal de la \"Actuación Inspirada\"?", opts: ["Hablar con demasiada pasión", "Usar muchos tecnicismos médicos", "Mucho estilo y muy poca sustancia", "Forzar la voz para conmover"], ans: 2 },
-    { q: "¿Qué hace el público cuando detecta que el objetivo del orador es \"venderle\" algo?", opts: ["Toma notas con más interés", "Interrumpe para pedir detalles", "Se refugia en su celular", "Lo respeta por su ambición profesional"], ans: 2 },
-    { q: "Según el texto, ¿cuál es la fuente de la verdadera inspiración del público?", opts: ["Pedirles que crean en tus sueños", "Usar trucos de manipulación emocional", "La autenticidad y el trabajo generoso", "Una ovación de pie coreografiada"], ans: 2 },
-    { q: "¿Qué mensaje implícito envía a la audiencia un ponente que alardea de ir \"poco preparado\"?", opts: ["Que es un genio de la improvisación", "Que es una persona muy honesta", "Que el tiempo del público no importa", "Que el proyecto es muy sencillo"], ans: 2 },
-    { q: "Un ponente que dice \"diré lo que me salga\" por falta de preparación, ¿en qué trampa cae?", opts: ["Actuación inspirada", "Divagación", "Organización aburrida", "Sinceridad académica"], ans: 1 },
-    { q: "Para evitar que \"tu organización sea un rollo\", ¿en qué debe centrarse el discurso?", opts: ["En el talento del equipo de trabajo", "En los logros y productos previos", "En el poder de las ideas y el trabajo", "En la complejidad del organigrama"], ans: 2 }
+    { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla?", opts: ["Superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Puntualidad"], ans: 1 },
+    { q: "¿Por qué detallar la historia interna del laboratorio es un error?", opts: ["Confidencialidad", "Es aburrido para otros", "Nadie cree en el éxito", "Las fotos distraen"], ans: 1 },
+    { q: "¿Por qué la generosidad es la mejor estrategia?", opts: ["Humildad", "Evita preguntas", "Provoca respuesta positiva", "Acorta el evento"], ans: 2 },
+    { q: "El autor compara la inspiración con el amor porque:", opts: ["Es irracional", "Si la buscas directamente, huye", "Solo ocurre una vez", "Requiere paciencia"], ans: 1 },
+    { q: "¿Característica principal de la \"Actuación Inspirada\"?", opts: ["Mucha pasión", "Tecnicismos", "Estilo sin sustancia", "Forzar la voz"], ans: 2 },
+    { q: "¿Qué hace el público si detectas que quieres \"venderles\" algo?", opts: ["Toma notas", "Pide detalles", "Se refugia en el celular", "Lo respeta"], ans: 2 },
+    { q: "¿Fuente de la verdadera inspiración?", opts: ["Pedir que crean en sueños", "Manipulación", "Autenticidad y trabajo", "Ovación coreografiada"], ans: 2 },
+    { q: "¿Qué mensaje envía un ponente poco preparado?", opts: ["Es un genio", "Es honesto", "El tiempo del público no importa", "El proyecto es simple"], ans: 2 },
+    { q: "Decir \"diré lo que me salga\" es caer en:", opts: ["Actuación inspirada", "Divagación", "Organización aburrida", "Sinceridad"], ans: 1 },
+    { q: "Para evitar que la organización sea un rollo, céntrate en:", opts: ["Talento del equipo", "Logros previos", "Poder de las ideas", "Organigrama"], ans: 2 }
   ];
 
-  let myName = "", myAvatar = "👽", lastKnownState = "", currentQStart = 0, hasAnsweredCurrent = false, lastQIdx = -1;
-  let timerTimeout; // Referencia para el temporizador de JS
+  let myName = "", myAvatar = "👽", currentLocalIdx = -1, hasStarted = false;
+  let timerTimeout, currentQStart = 0;
 
+  // Selección de Avatar
   document.querySelectorAll('.emoji-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
@@ -135,201 +110,103 @@
 
   function register() {
     myName = document.getElementById('username').value.trim();
-    if(!myName) return alert("¡Escribe tu nombre!");
+    if(!myName) return alert("¡Tu nombre!");
     const fd = new FormData();
     fd.append('action', 'register');
     fd.append('nombre', myName);
     fd.append('avatar', myAvatar);
     fetch(SCRIPT_URL, { method:'POST', body:fd });
     switchView('view-wait');
-    setInterval(pollServer, 500);
+    setInterval(pollServer, 1000);
   }
 
   async function pollServer() {
     try {
       const res = await fetch(SCRIPT_URL);
       const data = await res.json();
-      handleState(data);
-    } catch(e) { }
+      
+      if (data.state === "JUEGO" && !hasStarted) {
+        hasStarted = true;
+        nextQuestion();
+      }
+      
+      if (data.state === "FINAL") {
+        // Podrías redirigir a una pantalla de "Ver resultados en el proyector"
+        document.getElementById('wait-title').innerText = "¡Juego Terminado!";
+        document.getElementById('wait-desc').innerText = "Mira la pantalla principal para ver los ganadores.";
+        switchView('view-wait');
+      }
+    } catch(e) {}
   }
 
-  function handleState(data) {
-    const serverState = data.state;
-    const players = data.players || [];
-
-    if (serverState === "FINAL" && lastKnownState !== "FINAL") {
-      lastKnownState = serverState;
-      showFinalResult(players);
-      return;
-    }
-
-    if (serverState === "RANKING") {
-        lastKnownState = serverState; 
-        return; 
-    }
-
-    if (serverState === lastKnownState) return;
-    lastKnownState = serverState;
-
-    if (serverState === "LOBBY") { 
-      resetWaitScreen();
-      hasAnsweredCurrent = false; 
-    } 
-    else if (serverState.startsWith("Q")) {
-      const idx = parseInt(serverState.substring(1));
-      if (idx !== lastQIdx) { 
-        lastQIdx = idx; 
-        hasAnsweredCurrent = false; 
-      }
-      if (!hasAnsweredCurrent) {
-        showQuestion(idx);
-      } else {
-        switchView('view-wait');
-        document.getElementById('wait-icon').innerText = "⏳";
-        document.getElementById('wait-title').innerText = "Respuesta Enviada";
-        document.getElementById('wait-desc').innerText = "Esperando al resto...";
-      }
+  function nextQuestion() {
+    currentLocalIdx++;
+    if (currentLocalIdx < questions.length) {
+      showQuestion(currentLocalIdx);
+    } else {
+      // Al terminar las 10 preguntas
+      switchView('view-wait');
+      document.getElementById('wait-title').innerText = "¡Terminaste!";
+      document.getElementById('wait-desc').innerText = "Espera a que todos finalicen.";
     }
   }
 
   function showQuestion(idx) {
-    if (!questions[idx]) return; 
-
     const q = questions[idx];
-    document.getElementById('q-num').innerText = "PREGUNTA " + (idx+1);
+    document.getElementById('q-num').innerText = `PREGUNTA ${idx + 1} de 10`;
     document.getElementById('q-text').innerText = q.q;
     
-    // Reiniciar barra visual
+    // Timer visual y lógico
     const timer = document.getElementById('visual-timer');
     timer.classList.remove('animate-timer');
-    void timer.offsetWidth; 
+    void timer.offsetWidth;
     timer.classList.add('animate-timer');
 
-    // --- LÓGICA DE TIEMPO AGOTADO ---
     clearTimeout(timerTimeout);
     timerTimeout = setTimeout(() => {
-        if (!hasAnsweredCurrent) {
-            processTimeUp();
-        }
-    }, 15000); // 15 segundos exactos
-    // --------------------------------
+      sendAnswer(-1); // Tiempo agotado
+    }, 15000);
 
     const area = document.getElementById('options-area');
     area.innerHTML = q.opts.map((opt, i) => 
-      `<div class="opt-btn" onclick="sendAnswer(${i}, ${idx})">${opt}</div>`
+      `<div class="opt-btn" onclick="sendAnswer(${i})">${opt}</div>`
     ).join('');
 
     currentQStart = Date.now();
     switchView('view-question');
   }
 
-  function sendAnswer(selectedIdx, qIdx) {
-    if(hasAnsweredCurrent) return;
-    hasAnsweredCurrent = true;
-    
-    clearTimeout(timerTimeout); // Detener el reloj si el usuario responde antes
-
-    const correctIdx = questions[qIdx].ans;
+  function sendAnswer(selectedIdx) {
+    clearTimeout(timerTimeout);
+    const q = questions[currentLocalIdx];
     let points = 0;
-    
-    const icon = document.getElementById('fb-icon');
-    const title = document.getElementById('fb-title');
-    const fbPoints = document.getElementById('fb-points');
-    const card = document.getElementById('view-feedback');
+    const fbCard = document.getElementById('view-feedback');
 
-    if (selectedIdx === correctIdx) {
+    if (selectedIdx === q.ans) {
       const elapsed = (Date.now() - currentQStart) / 1000;
-      points = Math.max(500, Math.round(1500 - (elapsed * 60))); 
-      
-      card.className = "card bg-green";
-      icon.innerText = "😎";
-      title.innerText = "¡CORRECTO!";
-      fbPoints.innerText = "+" + points + " pts";
+      points = Math.max(500, Math.round(1500 - (elapsed * 60)));
+      fbCard.className = "card bg-green";
+      document.getElementById('fb-icon').innerText = "✅";
+      document.getElementById('fb-title').innerText = "¡Bien!";
     } else {
-      card.className = "card bg-red";
-      icon.innerText = "😢";
-      title.innerText = "INCORRECTO";
-      fbPoints.innerText = "0 pts";
+      fbCard.className = "card bg-red";
+      document.getElementById('fb-icon').innerText = selectedIdx === -1 ? "⏰" : "❌";
+      document.getElementById('fb-title').innerText = selectedIdx === -1 ? "Tiempo Agotado" : "Incorrecto";
     }
 
+    // Enviar puntos al servidor
     const fd = new FormData();
     fd.append('action', 'answer');
     fd.append('nombre', myName);
     fd.append('points', points);
+    // Notificar que está respondiendo para el puntito verde del Admin
+    fd.append('is_answering', 'SI'); 
     fetch(SCRIPT_URL, { method:'POST', body:fd });
 
     switchView('view-feedback');
-  }
-
-  function processTimeUp() {
-    if(hasAnsweredCurrent) return;
-    hasAnsweredCurrent = true;
-
-    const icon = document.getElementById('fb-icon');
-    const title = document.getElementById('fb-title');
-    const fbPoints = document.getElementById('fb-points');
-    const card = document.getElementById('view-feedback');
-
-    card.className = "card bg-red";
-    icon.innerText = "⏰";
-    title.innerText = "¡TIEMPO AGOTADO!";
-    fbPoints.innerText = "0 pts";
-
-    const fd = new FormData();
-    fd.append('action', 'answer');
-    fd.append('nombre', myName);
-    fd.append('points', 0);
-    fetch(SCRIPT_URL, { method:'POST', body:fd });
-
-    switchView('view-feedback');
-  }
-
-  function showFinalResult(players) {
-    switchView('view-wait');
-    const icon = document.getElementById('wait-icon');
-    const title = document.getElementById('wait-title');
-    const desc = document.getElementById('wait-desc');
-
-    players.sort((a,b) => b[1] - a[1]);
-    const myRank = players.findIndex(p => p[0] === myName);
-    const myScore = myRank !== -1 ? players[myRank][1] : 0;
-    const totalPlayers = players.length;
-
-    if (myRank === 0) {
-      icon.innerText = "🏆";
-      title.innerText = "¡FELICIDADES " + myName.toUpperCase() + "!";
-      title.className = "win-gold"; 
-      desc.innerHTML = "¡ERES EL <b>1ER LUGAR</b>!<br>Ganaste con " + myScore + " pts";
-    } 
-    else if (myRank === 1) {
-      icon.innerText = "🥈";
-      title.innerText = "¡FELICIDADES!";
-      desc.innerHTML = "¡Quedaste en <b>2do Lugar</b>!<br>Excelente trabajo.";
-    } 
-    else if (myRank === 2) {
-      icon.innerText = "🥉";
-      title.innerText = "¡FELICIDADES!";
-      desc.innerHTML = "¡Quedaste en <b>3er Lugar</b>!<br>Entraste al podio.";
-    } 
-    else if (totalPlayers >= 5 && myRank >= totalPlayers - 3) {
-      icon.innerText = "🤡";
-      title.innerText = "¡LÁSTIMA " + myName.toUpperCase() + "!";
-      title.className = "lose-punishment";
-      desc.innerHTML = "Quedaste al final de la tabla...<br><b>¡TE TOCA TRAER EL PREMIO!</b> 🍩";
-    } 
-    else {
-      icon.innerText = "🎉";
-      title.innerText = "¡GRACIAS POR JUGAR!";
-      desc.innerText = "Quedaste en el puesto #" + (myRank + 1) + "\nCon " + myScore + " puntos.";
-    }
-  }
-
-  function resetWaitScreen() {
-    switchView('view-wait');
-    document.getElementById('wait-icon').innerText = "⏳";
-    document.getElementById('wait-title').innerText = "Esperando al Host...";
-    document.getElementById('wait-title').className = "";
-    document.getElementById('wait-desc').innerText = "La sesión comenzará pronto";
+    
+    // Pequeña pausa de 1.5s antes de la siguiente pregunta
+    setTimeout(nextQuestion, 1500);
   }
 
   function switchView(id) {
