@@ -107,7 +107,6 @@
   </div>
 
 <script>
-  // ⚠️ TU URL AQUÍ ⚠️
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
 
   const questions = [
@@ -124,6 +123,7 @@
   ];
 
   let myName = "", myAvatar = "👽", lastKnownState = "", currentQStart = 0, hasAnsweredCurrent = false, lastQIdx = -1;
+  let timerTimeout; // Referencia para el temporizador de JS
 
   document.querySelectorAll('.emoji-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -142,8 +142,6 @@
     fd.append('avatar', myAvatar);
     fetch(SCRIPT_URL, { method:'POST', body:fd });
     switchView('view-wait');
-    
-    // 🛡️ ACTUALIZACIÓN RÁPIDA: 500ms
     setInterval(pollServer, 500);
   }
 
@@ -159,17 +157,13 @@
     const serverState = data.state;
     const players = data.players || [];
 
-    // FINAL
     if (serverState === "FINAL" && lastKnownState !== "FINAL") {
       lastKnownState = serverState;
       showFinalResult(players);
       return;
     }
 
-    // Si el estado es "RANKING", lo IGNORAMOS en la UI del jugador.
-    // Esto mantiene la pantalla anterior (Feedback) visible.
     if (serverState === "RANKING") {
-        // Actualizamos lastKnownState para que cuando llegue la PREGUNTA, se detecte el cambio.
         lastKnownState = serverState; 
         return; 
     }
@@ -181,7 +175,6 @@
       resetWaitScreen();
       hasAnsweredCurrent = false; 
     } 
-    // NOTA: EL BLOQUE "ELSE IF RANKING" FUE ELIMINADO INTENCIONALMENTE
     else if (serverState.startsWith("Q")) {
       const idx = parseInt(serverState.substring(1));
       if (idx !== lastQIdx) { 
@@ -197,6 +190,98 @@
         document.getElementById('wait-desc').innerText = "Esperando al resto...";
       }
     }
+  }
+
+  function showQuestion(idx) {
+    if (!questions[idx]) return; 
+
+    const q = questions[idx];
+    document.getElementById('q-num').innerText = "PREGUNTA " + (idx+1);
+    document.getElementById('q-text').innerText = q.q;
+    
+    // Reiniciar barra visual
+    const timer = document.getElementById('visual-timer');
+    timer.classList.remove('animate-timer');
+    void timer.offsetWidth; 
+    timer.classList.add('animate-timer');
+
+    // --- LÓGICA DE TIEMPO AGOTADO ---
+    clearTimeout(timerTimeout);
+    timerTimeout = setTimeout(() => {
+        if (!hasAnsweredCurrent) {
+            processTimeUp();
+        }
+    }, 15000); // 15 segundos exactos
+    // --------------------------------
+
+    const area = document.getElementById('options-area');
+    area.innerHTML = q.opts.map((opt, i) => 
+      `<div class="opt-btn" onclick="sendAnswer(${i}, ${idx})">${opt}</div>`
+    ).join('');
+
+    currentQStart = Date.now();
+    switchView('view-question');
+  }
+
+  function sendAnswer(selectedIdx, qIdx) {
+    if(hasAnsweredCurrent) return;
+    hasAnsweredCurrent = true;
+    
+    clearTimeout(timerTimeout); // Detener el reloj si el usuario responde antes
+
+    const correctIdx = questions[qIdx].ans;
+    let points = 0;
+    
+    const icon = document.getElementById('fb-icon');
+    const title = document.getElementById('fb-title');
+    const fbPoints = document.getElementById('fb-points');
+    const card = document.getElementById('view-feedback');
+
+    if (selectedIdx === correctIdx) {
+      const elapsed = (Date.now() - currentQStart) / 1000;
+      points = Math.max(500, Math.round(1500 - (elapsed * 60))); 
+      
+      card.className = "card bg-green";
+      icon.innerText = "😎";
+      title.innerText = "¡CORRECTO!";
+      fbPoints.innerText = "+" + points + " pts";
+    } else {
+      card.className = "card bg-red";
+      icon.innerText = "😢";
+      title.innerText = "INCORRECTO";
+      fbPoints.innerText = "0 pts";
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'answer');
+    fd.append('nombre', myName);
+    fd.append('points', points);
+    fetch(SCRIPT_URL, { method:'POST', body:fd });
+
+    switchView('view-feedback');
+  }
+
+  function processTimeUp() {
+    if(hasAnsweredCurrent) return;
+    hasAnsweredCurrent = true;
+
+    const icon = document.getElementById('fb-icon');
+    const title = document.getElementById('fb-title');
+    const fbPoints = document.getElementById('fb-points');
+    const card = document.getElementById('view-feedback');
+
+    card.className = "card bg-red";
+    icon.innerText = "⏰";
+    title.innerText = "¡TIEMPO AGOTADO!";
+    fbPoints.innerText = "0 pts";
+
+    const fd = new FormData();
+    fd.append('action', 'answer');
+    fd.append('nombre', myName);
+    fd.append('points', 0);
+    fetch(SCRIPT_URL, { method:'POST', body:fd });
+
+    switchView('view-feedback');
   }
 
   function showFinalResult(players) {
@@ -245,63 +330,6 @@
     document.getElementById('wait-title').innerText = "Esperando al Host...";
     document.getElementById('wait-title').className = "";
     document.getElementById('wait-desc').innerText = "La sesión comenzará pronto";
-  }
-
-  function showQuestion(idx) {
-    if (!questions[idx]) return; 
-
-    const q = questions[idx];
-    document.getElementById('q-num').innerText = "PREGUNTA " + (idx+1);
-    document.getElementById('q-text').innerText = q.q;
-    
-    const timer = document.getElementById('visual-timer');
-    timer.classList.remove('animate-timer');
-    void timer.offsetWidth; 
-    timer.classList.add('animate-timer');
-
-    const area = document.getElementById('options-area');
-    area.innerHTML = q.opts.map((opt, i) => 
-      `<div class="opt-btn" onclick="sendAnswer(${i}, ${idx})">${opt}</div>`
-    ).join('');
-
-    currentQStart = Date.now();
-    switchView('view-question');
-  }
-
-  function sendAnswer(selectedIdx, qIdx) {
-    if(hasAnsweredCurrent) return;
-    hasAnsweredCurrent = true;
-
-    const correctIdx = questions[qIdx].ans;
-    let points = 0;
-    
-    const icon = document.getElementById('fb-icon');
-    const title = document.getElementById('fb-title');
-    const fbPoints = document.getElementById('fb-points');
-    const card = document.getElementById('view-feedback');
-
-    if (selectedIdx === correctIdx) {
-      const elapsed = (Date.now() - currentQStart) / 1000;
-      points = Math.max(500, Math.round(1500 - (elapsed * 60))); 
-      
-      card.className = "card bg-green";
-      icon.innerText = "😎";
-      title.innerText = "¡CORRECTO!";
-      fbPoints.innerText = "+" + points + " pts";
-    } else {
-      card.className = "card bg-red";
-      icon.innerText = "😢";
-      title.innerText = "INCORRECTO";
-      fbPoints.innerText = "0 pts";
-    }
-
-    const fd = new FormData();
-    fd.append('action', 'answer');
-    fd.append('nombre', myName);
-    fd.append('points', points);
-    fetch(SCRIPT_URL, { method:'POST', body:fd });
-
-    switchView('view-feedback');
   }
 
   function switchView(id) {
