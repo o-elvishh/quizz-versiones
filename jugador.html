@@ -44,7 +44,6 @@
       border-radius: 12px; font-size: 1rem; margin: 20px 0; 
       background: var(--input-bg); color: var(--text-main); text-align: center; 
     }
-    input:focus { border-color: var(--primary); }
 
     button { 
       background: linear-gradient(to right, var(--primary), var(--primary-hover)); 
@@ -54,31 +53,26 @@
     }
     button:active { transform: scale(0.96); }
 
-    /* Emojis */
     .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
     .emoji-btn { 
       cursor: pointer; padding: 10px; background: var(--input-bg); 
       border-radius: 12px; border: 1px solid var(--border-color); 
-      font-size: 1.5rem; transition: all 0.2s; 
+      font-size: 1.5rem; transition: 0.2s; 
     }
     .emoji-btn.selected { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); transform: scale(1.1); }
 
-    /* Barra de Tiempo */
     .timer-container { width: 100%; height: 6px; background: var(--border-color); position: absolute; top: 0; left: 0; }
     .timer-bar { width: 100%; height: 100%; background: var(--primary); }
     .animate-timer { animation: countdown 15s linear forwards; }
     @keyframes countdown { from { width: 100%; } to { width: 0%; } }
 
-    /* Opciones */
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
     .opt-btn { 
       background: var(--input-bg); padding: 16px; border-radius: 12px; 
       border: 1px solid var(--border-color); color: var(--text-main); 
       font-weight: 600; cursor: pointer; text-align: left; 
     }
-    .opt-btn:active { background: var(--border-color); }
 
-    /* Feedback */
     .status-icon { font-size: 5rem; margin-bottom: 10px; }
     .bg-green { background: var(--accent-green) !important; color: white !important; }
     .bg-red { background: var(--accent-red) !important; color: white !important; }
@@ -88,39 +82,37 @@
 
   <div id="view-login" class="card">
     <h2>Tu Avatar</h2>
-    <div class="emoji-grid" id="emoji-container">
-      <div class="emoji-btn selected">👽</div><div class="emoji-btn">🤖</div><div class="emoji-btn">🚀</div>
-      <div class="emoji-btn">🧠</div><div class="emoji-btn">🦄</div><div class="emoji-btn">🦊</div>
-      <div class="emoji-btn">😎</div><div class="emoji-btn">⚡</div><div class="emoji-btn">🐱</div>
-      <div class="emoji-btn">🍕</div>
+    <div class="emoji-grid">
+      <div class="emoji-btn selected">👽</div><div class="emoji-btn">🤖</div><div class="emoji-btn">🚀</div><div class="emoji-btn">🧠</div><div class="emoji-btn">🦄</div>
+      <div class="emoji-btn">🦊</div><div class="emoji-btn">😎</div><div class="emoji-btn">⚡</div><div class="emoji-btn">🐱</div><div class="emoji-btn">🍕</div>
     </div>
-    <input type="text" id="username" placeholder="Escribe tu nombre completo">
+    <input type="text" id="username" placeholder="Tu Nombre Completo">
     <button onclick="register()">ENTRAR AL LOBBY</button>
   </div>
 
   <div id="view-wait" class="card hidden">
     <div class="status-icon" id="wait-icon">⏳</div>
     <h3 id="wait-title">Esperando al Host...</h3>
-    <p class="text-muted" id="wait-desc">La carrera comenzará en breve</p>
+    <p class="text-muted" id="wait-desc">La carrera comenzará pronto</p>
   </div>
 
   <div id="view-question" class="card hidden">
     <div class="timer-container"><div id="visual-timer" class="timer-bar"></div></div>
     <div id="q-num" style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top:15px;"></div>
-    <h2 id="q-text" style="font-size: 1.2rem; margin: 20px 0;"></h2>
+    <h2 id="q-text" style="font-size: 1.15rem; margin: 20px 0;"></h2>
     <div id="options-area" class="options-grid"></div>
   </div>
 
   <div id="view-feedback" class="card hidden">
     <div id="fb-icon" class="status-icon"></div>
     <h2 id="fb-title"></h2>
-    <p id="fb-points" style="font-weight: bold; font-size: 1.2rem;"></p>
-    <p style="opacity: 0.8;">Preparando siguiente pregunta...</p>
+    <h3 id="fb-points"></h3>
+    <p>Siguiente pregunta en camino...</p>
   </div>
 
 <script>
   // ⚠️ TU URL DE GOOGLE APPS SCRIPT AQUÍ ⚠️
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
+  const SCRIPT_URL = "ESCRIBE_AQUI_TU_URL_DE_IMPLEMENTACION";
 
   const questions = [
     { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla?", opts: ["Superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Puntualidad"], ans: 1 },
@@ -128,7 +120,7 @@
     { q: "¿Por qué la generosidad es la mejor estrategia?", opts: ["Te hace ver humilde", "Evita preguntas", "Provoca respuesta positiva", "Acorta el evento"], ans: 2 },
     { q: "El autor compara la inspiración con el amor porque:", opts: ["Es irracional", "Si la buscas directamente, huye", "Ocurre una vez", "Requiere paciencia"], ans: 1 },
     { q: "¿Característica de la \"Actuación Inspirada\"?", opts: ["Mucha pasión", "Tecnicismos", "Estilo sin sustancia", "Forzar la voz"], ans: 2 },
-    { q: "¿Qué hace el público si detecta que quieres \"venderles\" algo?", opts: ["Toma notas", "Pide detalles", "Se refugia en el celular", "Lo respeta"], ans: 2 },
+    { q: "¿Qué hace el público si detectas que quieres \"venderles\" algo?", opts: ["Toma notas", "Pide detalles", "Se refugia en el celular", "Lo respeta"], ans: 2 },
     { q: "¿Fuente de la verdadera inspiración?", opts: ["Pedir fe en sueños", "Trucos emocionales", "Autenticidad y trabajo", "Ovación coreografiada"], ans: 2 },
     { q: "¿Qué mensaje envía un ponente poco preparado?", opts: ["Es un genio", "Es honesto", "El tiempo del público no importa", "Es muy simple"], ans: 2 },
     { q: "Decir \"diré lo que me salga\" es caer en:", opts: ["Actuación inspirada", "Divagación", "Organización aburrida", "Sinceridad"], ans: 1 },
@@ -136,9 +128,9 @@
   ];
 
   let myName = "", myAvatar = "👽", currentLocalIdx = -1, hasStarted = false;
-  let timerTimeout, currentQStart = 0;
+  let timerTimeout, currentQStart = 0, pollInterval;
 
-  // Lógica de selección de emoji
+  // Selección de Avatar
   document.querySelectorAll('.emoji-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
@@ -149,7 +141,7 @@
 
   function register() {
     myName = document.getElementById('username').value.trim();
-    if(!myName) return alert("¡Por favor escribe tu nombre!");
+    if(!myName) return alert("¡Escribe tu nombre!");
     
     const fd = new FormData();
     fd.append('action', 'register');
@@ -158,33 +150,34 @@
     fetch(SCRIPT_URL, { method:'POST', body:fd });
     
     switchView('view-wait');
-    setInterval(pollServer, 1000); // Revisar estado cada segundo
+    // Polling súper rápido (500ms) para detectar el inicio de inmediato
+    pollInterval = setInterval(pollServer, 500);
   }
 
   async function pollServer() {
     try {
-      const res = await fetch(SCRIPT_URL);
+      // TRUCO: ?t=Date.now() evita que el móvil use una respuesta vieja guardada en caché
+      const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
       const data = await res.json();
       
-      // DISPARADOR: Si el Admin pone "JUEGO" y yo no he empezado, arranco.
       if (data.state === "JUEGO" && !hasStarted) {
         hasStarted = true;
+        // Bajamos la velocidad de polling para no saturar mientras juegan
+        clearInterval(pollInterval);
+        pollInterval = setInterval(pollServer, 4000);
         nextQuestion();
       }
 
-      // Si el Admin finaliza el juego
       if (data.state === "FINAL") {
-        document.getElementById('wait-title').innerText = "¡Carrera Finalizada!";
-        document.getElementById('wait-desc').innerText = "Mira el podio en la pantalla principal.";
+        document.getElementById('wait-title').innerText = "¡Juego Terminado!";
+        document.getElementById('wait-desc').innerText = "Consulta los resultados en la pantalla principal.";
         document.getElementById('wait-icon').innerText = "🏁";
         switchView('view-wait');
       }
 
-      // Si el Admin reinicia a Lobby
-      if (data.state === "LOBBY" && hasStarted) {
-        location.reload();
-      }
-    } catch(e) { console.log("Error de conexión..."); }
+      if (data.state === "LOBBY" && hasStarted) location.reload();
+
+    } catch(e) {}
   }
 
   function nextQuestion() {
@@ -192,10 +185,9 @@
     if (currentLocalIdx < questions.length) {
       showQuestion(currentLocalIdx);
     } else {
-      // Fin de las preguntas para este jugador
       switchView('view-wait');
-      document.getElementById('wait-title').innerText = "¡Lo lograste!";
-      document.getElementById('wait-desc').innerText = "Esperando a que los demás terminen...";
+      document.getElementById('wait-title').innerText = "¡Terminaste!";
+      document.getElementById('wait-desc').innerText = "Mira el ranking en el proyector.";
       document.getElementById('wait-icon').innerText = "✅";
     }
   }
@@ -205,17 +197,13 @@
     document.getElementById('q-num').innerText = `PREGUNTA ${idx + 1} DE ${questions.length}`;
     document.getElementById('q-text').innerText = q.q;
     
-    // Timer visual
     const timerBar = document.getElementById('visual-timer');
     timerBar.classList.remove('animate-timer');
     void timerBar.offsetWidth; 
     timerBar.classList.add('animate-timer');
 
-    // Timer lógico (15 segundos)
     clearTimeout(timerTimeout);
-    timerTimeout = setTimeout(() => {
-      sendAnswer(-1); // -1 significa Tiempo Agotado
-    }, 15000);
+    timerTimeout = setTimeout(() => sendAnswer(-1), 15000);
 
     const area = document.getElementById('options-area');
     area.innerHTML = q.opts.map((opt, i) => 
@@ -232,25 +220,20 @@
     let points = 0;
     
     const fbCard = document.getElementById('view-feedback');
-    const fbIcon = document.getElementById('fb-icon');
-    const fbTitle = document.getElementById('fb-title');
-    const fbPtsTxt = document.getElementById('fb-points');
-
     if (selectedIdx === q.ans) {
       const elapsed = (Date.now() - currentQStart) / 1000;
       points = Math.max(500, Math.round(1500 - (elapsed * 60))); 
       fbCard.className = "card bg-green";
-      fbIcon.innerText = "😎";
-      fbTitle.innerText = "¡CORRECTO!";
-      fbPtsTxt.innerText = `+${points} pts`;
+      document.getElementById('fb-icon').innerText = "😎";
+      document.getElementById('fb-title').innerText = "¡CORRECTO!";
+      document.getElementById('fb-points').innerText = `+${points} pts`;
     } else {
       fbCard.className = "card bg-red";
-      fbIcon.innerText = selectedIdx === -1 ? "⏰" : "😢";
-      fbTitle.innerText = selectedIdx === -1 ? "TIEMPO AGOTADO" : "INCORRECTO";
-      fbPtsTxt.innerText = "0 pts";
+      document.getElementById('fb-icon').innerText = selectedIdx === -1 ? "⏰" : "😢";
+      document.getElementById('fb-title').innerText = selectedIdx === -1 ? "TIEMPO AGOTADO" : "INCORRECTO";
+      document.getElementById('fb-points').innerText = "0 pts";
     }
 
-    // Enviar al servidor
     const fd = new FormData();
     fd.append('action', 'answer');
     fd.append('nombre', myName);
@@ -258,8 +241,6 @@
     fetch(SCRIPT_URL, { method:'POST', body:fd });
 
     switchView('view-feedback');
-    
-    // Pausa dramática de 2 segundos antes de la siguiente
     setTimeout(nextQuestion, 2000);
   }
 
