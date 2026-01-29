@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Carrera Quizz TED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --accent-gold: #fbbf24;
+      --accent-silver: #94a3b8;
+      --accent-bronze: #b45309;
+      --accent-green: #10b981; 
+      --radius: 16px;
+    }
+
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 20px; }
+    .status-bar { margin-bottom: 20px; padding: 10px 25px; background: rgba(255,255,255,0.05); border-radius: 50px; font-weight: 700; color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.3); font-size: 0.8rem; }
+    .card { background: var(--card-bg); width: 100%; max-width: 900px; padding: 40px; border-radius: var(--radius); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid #334155; text-align: center; }
+    
+    h1 { color: var(--primary); font-size: 2.5rem; font-weight: 800; margin-top: 0; }
+
+    /* Estilos del QR */
+    #qr-wrapper {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 20px 0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    /* Estilos del Podio */
+    .podium { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin: 40px 0; height: 300px; }
+    .podium-spot { display: flex; flex-direction: column; align-items: center; width: 180px; }
+    .podium-bar { width: 100%; border-radius: 12px 12px 0 0; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 20px; font-weight: 800; font-size: 2rem; color: rgba(0,0,0,0.3); }
+    .gold { background: var(--accent-gold); height: 220px; box-shadow: 0 0 40px rgba(251, 191, 36, 0.4); }
+    .silver { background: var(--accent-silver); height: 160px; }
+    .bronze { background: var(--accent-bronze); height: 110px; }
+
+    /* Tabla de Posiciones General */
+    .leaderboard { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .rank-row { border-bottom: 1px solid #334155; }
+    .rank-cell { padding: 12px; font-size: 1.1rem; font-weight: 700; text-align: left; }
+    .rank-pts { text-align: right; color: var(--primary); font-family: monospace; }
+    
+    .pulse-dot { height: 12px; width: 12px; background: var(--accent-green); border-radius: 50%; display: inline-block; margin-right: 12px; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+    .controls { position: fixed; bottom: 40px; display: flex; gap: 15px; }
+    button { padding: 18px 40px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .btn-start { background: var(--primary); }
+    .btn-final { background: var(--accent-green); }
+    .btn-reset { background: #ef4444; opacity: 0.8; }
+    .hidden { display: none; }
+    .player-chip { background: #334155; padding: 10px 20px; border-radius: 50px; font-weight: bold; border: 1px solid #475569; animation: pop 0.3s ease-out; }
+    @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="status-bar" id="status-text">CONECTANDO...</div>
+
+  <div class="card">
+    <div id="view-lobby">
+      <h1>Lobby del Quizz</h1>
+      
+      <div id="qr-wrapper">
+        <div id="qrcode"></div>
+        <p style="color: #0f172a; margin: 8px 0 0 0; font-weight: 800; font-size: 0.7rem;">¡ESCANEA PARA UNIRTE!</p>
+      </div>
+
+      <p id="player-count" style="font-size: 1.5rem; color: var(--primary); font-weight: 800;">0 Conectados</p>
+      <div id="lobby-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+        <p style="color: var(--text-muted)">Esperando participantes...</p>
+      </div>
+    </div>
+
+    <div id="view-juego" class="hidden">
+      <h1>Carrera en Vivo</h1>
+      <table class="leaderboard">
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+    </div>
+
+    <div id="view-final" class="hidden">
+      <h1>🏆 RESULTADOS FINALES 🏆</h1>
+      <div class="podium" id="podium-area"></div>
+      
+      <div style="margin-top: 30px; text-align: left;">
+        <h3 style="color: var(--text-muted); border-bottom: 1px solid #334155; padding-bottom: 10px;">TABLA DE POSICIONES COMPLETA</h3>
+        <div id="final-list-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="ctrl-start" class="btn-start" onclick="updateState('JUEGO')">🚀 EMPEZAR JUEGO</button>
+    <button id="ctrl-final" class="btn-final hidden" onclick="updateState('FINAL')">🏁 MOSTRAR PODIO</button>
+    <button class="btn-reset" onclick="resetSystem()">🔄 REINICIAR</button>
+  </div>
+
+<script>
+  // TUS URLs
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
+  const PLAYER_URL = "https://eagarciaco.github.io/quizz/jugador.html";
+
+  let lastState = "";
+
+  // GENERAR QR AL CARGAR
+  window.onload = function() {
+    new QRCode(document.getElementById("qrcode"), {
+      text: PLAYER_URL,
+      width: 160,
+      height: 160,
+      colorDark : "#0f172a",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+  };
+
+  setInterval(fetchData, 1000);
+
+  async function fetchData() {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+      if (!res.ok) throw new Error('Respuesta no satisfactoria');
+      const data = await res.json();
+      renderUI(data.state, data.players || []);
+    } catch(e) {
+      document.getElementById('status-text').innerText = "⚠️ ERROR DE CONEXIÓN";
+    }
+  }
+
+  function renderUI(state, players) {
+    document.getElementById('status-text').innerText = `MODO ACTUAL: ${state}`;
+    document.getElementById('view-lobby').classList.toggle('hidden', state !== 'LOBBY');
+    document.getElementById('view-juego').classList.toggle('hidden', state !== 'JUEGO');
+    document.getElementById('view-final').classList.toggle('hidden', state !== 'FINAL');
+    document.getElementById('ctrl-start').classList.toggle('hidden', state !== 'LOBBY');
+    document.getElementById('ctrl-final').classList.toggle('hidden', state !== 'JUEGO');
+
+    const sorted = [...players].sort((a,b) => b[1] - a[1]);
+
+    if (state === 'LOBBY') {
+      document.getElementById('player-count').innerText = `${players.length} Conectados`;
+      const list = document.getElementById('lobby-list');
+      if (players.length === 0) {
+        list.innerHTML = `<p style="color: var(--text-muted)">Esperando participantes...</p>`;
+      } else {
+        list.innerHTML = players.map(p => `<div class="player-chip">${p[2]} ${p[0]}</div>`).join('');
+      }
+    }
+
+    if (state === 'JUEGO') {
+      document.getElementById('leaderboard-body').innerHTML = sorted.map((p, i) => `
+        <tr class="rank-row">
+          <td class="rank-cell" style="width:50px">#${i+1}</td>
+          <td class="rank-cell">${p[3]==='SI'?'<span class="pulse-dot"></span>':''} ${p[2]} ${p[0]}</td>
+          <td class="rank-cell rank-pts">${p[1]} pts</td>
+        </tr>`).join('');
+    }
+
+    if (state === 'FINAL' && lastState !== 'FINAL') {
+      showFinalScreen(sorted);
+    }
+    lastState = state;
+  }
+
+  function showFinalScreen(sorted) {
+    const p1 = sorted[0] || ["-", 0, "👻"];
+    const p2 = sorted[1] || ["-", 0, ""];
+    const p3 = sorted[2] || ["-", 0, ""];
+
+    document.getElementById('podium-area').innerHTML = `
+      <div class="podium-spot">
+        <div style="font-size:3rem">${p2[2] || ''}</div>
+        <div class="podium-bar silver">2º</div>
+        <div style="font-weight:bold; margin-top:10px;">${p2[0]}</div>
+      </div>
+      <div class="podium-spot">
+        <div style="font-size:5rem">👑</div>
+        <div class="podium-bar gold">1º</div>
+        <div style="font-weight:bold; font-size:1.4rem; color:var(--accent-gold);">${p1[0]}</div>
+      </div>
+      <div class="podium-spot">
+        <div style="font-size:3rem">${p3[2] || ''}</div>
+        <div class="podium-bar bronze">3º</div>
+        <div style="font-weight:bold; margin-top:10px;">${p3[0]}</div>
+      </div>
+    `;
+
+    document.getElementById('final-list-full').innerHTML = sorted.map((p, i) => `
+      <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #334155; ${i > sorted.length - 4 && sorted.length > 5 ? 'color:#ef4444;' : ''}">
+        <span><b>#${i+1}</b> ${p[2]} ${p[0]}</span>
+        <span>${p[1]} pts</span>
+      </div>
+    `).join('');
+  }
+
+  function updateState(newState) {
+    const fd = new FormData();
+    fd.append('action', 'admin_set_state');
+    fd.append('state', newState);
+    fetch(SCRIPT_URL, { method: 'POST', body: fd });
+  }
+
+  function resetSystem() {
+    if(confirm("¿Estás seguro de REINICIAR?")) {
+      updateState('LOBBY');
+    }
+  }
+</script>
+</body>
+</html>
