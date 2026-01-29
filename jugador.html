@@ -6,7 +6,7 @@
   <title>Participante - Quizz TED</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    /* --- ESTILOS DARK PRO --- */
+    /* --- PALETA DARK PRO --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       --card-bg: #1e293b;
@@ -23,49 +23,46 @@
 
     * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
     body { 
-      margin: 0; font-family: 'Inter', sans-serif; 
-      background: var(--bg-gradient); color: var(--text-main); 
-      display: flex; justify-content: center; align-items: center; 
-      min-height: 100vh; padding: 20px; 
+      margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-gradient); 
+      color: var(--text-main); display: flex; justify-content: center; 
+      align-items: center; min-height: 100vh; padding: 20px; 
     }
 
     .card { 
-      background: var(--card-bg); width: 100%; max-width: 450px; 
-      padding: 30px; border-radius: var(--radius); 
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-      border: 1px solid var(--border-color); text-align: center; 
-      position: relative; overflow: hidden; 
+      background: var(--card-bg); width: 100%; max-width: 450px; padding: 30px; 
+      border-radius: var(--radius); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+      border: 1px solid var(--border-color); text-align: center; position: relative; overflow: hidden; 
     }
     .hidden { display: none; }
 
     h2 { color: var(--primary); font-weight: 800; margin-top: 0; }
     input { 
-      width: 100%; padding: 14px; border: 2px solid var(--border-color); 
-      border-radius: 12px; font-size: 1rem; margin: 20px 0; 
-      background: var(--input-bg); color: var(--text-main); text-align: center; 
+      width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; 
+      font-size: 1rem; margin: 20px 0; background: var(--input-bg); color: var(--text-main); text-align: center; 
     }
 
     button { 
       background: linear-gradient(to right, var(--primary), var(--primary-hover)); 
-      color: white; border: none; padding: 16px; width: 100%; 
-      border-radius: 50px; font-size: 1.1rem; font-weight: 800; 
-      cursor: pointer; transition: transform 0.2s; 
+      color: white; border: none; padding: 16px; width: 100%; border-radius: 50px; 
+      font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: transform 0.2s; 
     }
     button:active { transform: scale(0.96); }
 
+    /* Emojis */
     .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
     .emoji-btn { 
-      cursor: pointer; padding: 10px; background: var(--input-bg); 
-      border-radius: 12px; border: 1px solid var(--border-color); 
-      font-size: 1.5rem; transition: 0.2s; 
+      cursor: pointer; padding: 10px; background: var(--input-bg); border-radius: 12px; 
+      border: 1px solid var(--border-color); font-size: 1.5rem; transition: 0.2s; 
     }
     .emoji-btn.selected { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); transform: scale(1.1); }
 
+    /* Timer */
     .timer-container { width: 100%; height: 6px; background: var(--border-color); position: absolute; top: 0; left: 0; }
     .timer-bar { width: 100%; height: 100%; background: var(--primary); }
     .animate-timer { animation: countdown 15s linear forwards; }
     @keyframes countdown { from { width: 100%; } to { width: 0%; } }
 
+    /* Opciones */
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
     .opt-btn { 
       background: var(--input-bg); padding: 16px; border-radius: 12px; 
@@ -73,6 +70,7 @@
       font-weight: 600; cursor: pointer; text-align: left; 
     }
 
+    /* Feedback */
     .status-icon { font-size: 5rem; margin-bottom: 10px; }
     .bg-green { background: var(--accent-green) !important; color: white !important; }
     .bg-red { background: var(--accent-red) !important; color: white !important; }
@@ -86,14 +84,14 @@
       <div class="emoji-btn selected">👽</div><div class="emoji-btn">🤖</div><div class="emoji-btn">🚀</div><div class="emoji-btn">🧠</div><div class="emoji-btn">🦄</div>
       <div class="emoji-btn">🦊</div><div class="emoji-btn">😎</div><div class="emoji-btn">⚡</div><div class="emoji-btn">🐱</div><div class="emoji-btn">🍕</div>
     </div>
-    <input type="text" id="username" placeholder="Tu Nombre Completo">
+    <input type="text" id="username" placeholder="Escribe tu nombre">
     <button onclick="register()">ENTRAR AL LOBBY</button>
   </div>
 
   <div id="view-wait" class="card hidden">
     <div class="status-icon" id="wait-icon">⏳</div>
     <h3 id="wait-title">Esperando al Host...</h3>
-    <p class="text-muted" id="wait-desc">La carrera comenzará pronto</p>
+    <p class="text-muted" id="wait-desc">Preparando preguntas...</p>
   </div>
 
   <div id="view-question" class="card hidden">
@@ -107,26 +105,14 @@
     <div id="fb-icon" class="status-icon"></div>
     <h2 id="fb-title"></h2>
     <h3 id="fb-points"></h3>
-    <p>Siguiente pregunta en camino...</p>
+    <p>La carrera continúa...</p>
   </div>
 
 <script>
   // ⚠️ TU URL DE GOOGLE APPS SCRIPT AQUÍ ⚠️
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
+  const SCRIPT_URL = "ESCRIBE_AQUI_TU_NUEVA_URL_EXEC";
 
-  const questions = [
-    { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla?", opts: ["Superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Puntualidad"], ans: 1 },
-    { q: "¿Por qué detallar la historia interna del laboratorio es un error?", opts: ["Confidencialidad", "Es aburrido para otros", "Nadie cree en el éxito", "Fotos de edificios"], ans: 1 },
-    { q: "¿Por qué la generosidad es la mejor estrategia?", opts: ["Te hace ver humilde", "Evita preguntas", "Provoca respuesta positiva", "Acorta el evento"], ans: 2 },
-    { q: "El autor compara la inspiración con el amor porque:", opts: ["Es irracional", "Si la buscas directamente, huye", "Ocurre una vez", "Requiere paciencia"], ans: 1 },
-    { q: "¿Característica de la \"Actuación Inspirada\"?", opts: ["Mucha pasión", "Tecnicismos", "Estilo sin sustancia", "Forzar la voz"], ans: 2 },
-    { q: "¿Qué hace el público si detectas que quieres \"venderles\" algo?", opts: ["Toma notas", "Pide detalles", "Se refugia en el celular", "Lo respeta"], ans: 2 },
-    { q: "¿Fuente de la verdadera inspiración?", opts: ["Pedir fe en sueños", "Trucos emocionales", "Autenticidad y trabajo", "Ovación coreografiada"], ans: 2 },
-    { q: "¿Qué mensaje envía un ponente poco preparado?", opts: ["Es un genio", "Es honesto", "El tiempo del público no importa", "Es muy simple"], ans: 2 },
-    { q: "Decir \"diré lo que me salga\" es caer en:", opts: ["Actuación inspirada", "Divagación", "Organización aburrida", "Sinceridad"], ans: 1 },
-    { q: "Para que la organización no sea un rollo, céntrate en:", opts: ["Talento del equipo", "Logros previos", "Poder de las ideas", "Organigrama"], ans: 2 }
-  ];
-
+  let questions = []; // Se llenará desde el servidor
   let myName = "", myAvatar = "👽", currentLocalIdx = -1, hasStarted = false;
   let timerTimeout, currentQStart = 0, pollInterval;
 
@@ -150,34 +136,39 @@
     fetch(SCRIPT_URL, { method:'POST', body:fd });
     
     switchView('view-wait');
-    // Polling súper rápido (500ms) para detectar el inicio de inmediato
-    pollInterval = setInterval(pollServer, 500);
+    // Polling rápido para detectar el inicio e ir cargando las preguntas
+    pollInterval = setInterval(pollServer, 800);
   }
 
   async function pollServer() {
     try {
-      // TRUCO: ?t=Date.now() evita que el móvil use una respuesta vieja guardada en caché
       const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
       const data = await res.json();
       
-      if (data.state === "JUEGO" && !hasStarted) {
+      // CARGAR PREGUNTAS DESDE EL EXCEL (si aún no las tenemos)
+      if (data.questions && questions.length === 0) {
+        questions = data.questions;
+        document.getElementById('wait-desc').innerText = "Preguntas listas. ¡Prepárate!";
+      }
+
+      // INICIAR JUEGO
+      if (data.state === "JUEGO" && !hasStarted && questions.length > 0) {
         hasStarted = true;
-        // Bajamos la velocidad de polling para no saturar mientras juegan
         clearInterval(pollInterval);
-        pollInterval = setInterval(pollServer, 4000);
+        pollInterval = setInterval(pollServer, 4000); // Bajamos ritmo en juego
         nextQuestion();
       }
 
       if (data.state === "FINAL") {
         document.getElementById('wait-title').innerText = "¡Juego Terminado!";
-        document.getElementById('wait-desc').innerText = "Consulta los resultados en la pantalla principal.";
+        document.getElementById('wait-desc').innerText = "Mira los resultados finales.";
         document.getElementById('wait-icon').innerText = "🏁";
         switchView('view-wait');
       }
 
       if (data.state === "LOBBY" && hasStarted) location.reload();
 
-    } catch(e) {}
+    } catch(e) { console.warn("Reconectando..."); }
   }
 
   function nextQuestion() {
@@ -187,7 +178,7 @@
     } else {
       switchView('view-wait');
       document.getElementById('wait-title').innerText = "¡Terminaste!";
-      document.getElementById('wait-desc').innerText = "Mira el ranking en el proyector.";
+      document.getElementById('wait-desc').innerText = "Esperando al podio final...";
       document.getElementById('wait-icon').innerText = "✅";
     }
   }
@@ -206,7 +197,10 @@
     timerTimeout = setTimeout(() => sendAnswer(-1), 15000);
 
     const area = document.getElementById('options-area');
-    area.innerHTML = q.opts.map((opt, i) => 
+    // Filtramos opciones vacías por si hay celdas en blanco en el Excel
+    const validOpts = q.opts.filter(opt => opt !== "");
+    
+    area.innerHTML = validOpts.map((opt, i) => 
       `<div class="opt-btn" onclick="sendAnswer(${i})">${opt}</div>`
     ).join('');
 
@@ -241,7 +235,7 @@
     fetch(SCRIPT_URL, { method:'POST', body:fd });
 
     switchView('view-feedback');
-    setTimeout(nextQuestion, 2000);
+    setTimeout(nextQuestion, 1800);
   }
 
   function switchView(id) {
