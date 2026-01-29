@@ -19,7 +19,7 @@
     }
 
     body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 20px; }
-    .status-bar { margin-bottom: 20px; padding: 10px 25px; background: rgba(255,255,255,0.05); border-radius: 50px; font-weight: 700; color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.3); }
+    .status-bar { margin-bottom: 20px; padding: 10px 25px; background: rgba(255,255,255,0.05); border-radius: 50px; font-weight: 700; color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.3); font-size: 0.8rem; }
     .card { background: var(--card-bg); width: 100%; max-width: 900px; padding: 40px; border-radius: var(--radius); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid #334155; text-align: center; }
     
     h1 { color: var(--primary); font-size: 2.5rem; font-weight: 800; margin-top: 0; }
@@ -42,23 +42,26 @@
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
     .controls { position: fixed; bottom: 40px; display: flex; gap: 15px; }
-    button { padding: 18px 40px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; color: white; transition: 0.2s; }
+    button { padding: 18px 40px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     .btn-start { background: var(--primary); }
     .btn-final { background: var(--accent-green); }
     .btn-reset { background: #ef4444; opacity: 0.8; }
     .hidden { display: none; }
-    .player-chip { background: #334155; padding: 8px 15px; border-radius: 50px; font-weight: bold; border: 1px solid #475569; }
+    .player-chip { background: #334155; padding: 10px 20px; border-radius: 50px; font-weight: bold; border: 1px solid #475569; animation: pop 0.3s ease-out; }
+    @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <div class="status-bar" id="status-text">ESPERANDO...</div>
+  <div class="status-bar" id="status-text">CONECTANDO...</div>
 
   <div class="card">
     <div id="view-lobby">
       <h1>Lobby del Quizz</h1>
       <p id="player-count" style="font-size: 1.5rem; color: var(--primary); font-weight: 800;">0 Conectados</p>
-      <div id="lobby-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;"></div>
+      <div id="lobby-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+        <p style="color: var(--text-muted)">Esperando participantes...</p>
+      </div>
     </div>
 
     <div id="view-juego" class="hidden">
@@ -86,36 +89,63 @@
   </div>
 
 <script>
-  // ⚠️ TU URL AQUÍ ⚠️
+  // ⚠️ REEMPLAZA ESTO CON TU URL REAL ⚠️
   const SCRIPT_URL = "ESCRIBE_AQUI_TU_NUEVA_URL_EXEC";
 
   let lastState = "";
 
+  // Polling constante cada segundo
   setInterval(fetchData, 1000);
 
   async function fetchData() {
+    if (SCRIPT_URL.includes("ESCRIBE_AQUI")) {
+        document.getElementById('status-text').innerText = "⚠️ ERROR: FALTA URL EN EL CÓDIGO";
+        return;
+    }
+
     try {
       const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+      if (!res.ok) throw new Error('Respuesta no satisfactoria del servidor');
+      
       const data = await res.json();
+      
+      // LOG DE DEPURACIÓN: Esto aparecerá en el F12 de tu navegador
+      console.log("Servidor responde:", data);
+      
       renderUI(data.state, data.players || []);
-    } catch(e) {}
+    } catch(e) {
+      console.error("Error conectando con Google Script:", e);
+      document.getElementById('status-text').innerText = "⚠️ ERROR DE CONEXIÓN";
+    }
   }
 
   function renderUI(state, players) {
-    document.getElementById('status-text').innerText = `MODO: ${state}`;
+    document.getElementById('status-text').innerText = `MODO ACTUAL: ${state}`;
+    
+    // Control de visibilidad de vistas
     document.getElementById('view-lobby').classList.toggle('hidden', state !== 'LOBBY');
     document.getElementById('view-juego').classList.toggle('hidden', state !== 'JUEGO');
     document.getElementById('view-final').classList.toggle('hidden', state !== 'FINAL');
+    
+    // Control de botones
     document.getElementById('ctrl-start').classList.toggle('hidden', state !== 'LOBBY');
     document.getElementById('ctrl-final').classList.toggle('hidden', state !== 'JUEGO');
 
     const sorted = [...players].sort((a,b) => b[1] - a[1]);
 
+    // --- RENDERIZAR LOBBY ---
     if (state === 'LOBBY') {
-      document.getElementById('player-count').innerText = `${players.length} Jugadores`;
-      document.getElementById('lobby-list').innerHTML = players.map(p => `<div class="player-chip">${p[2]} ${p[0]}</div>`).join('');
+      document.getElementById('player-count').innerText = `${players.length} Conectados`;
+      const list = document.getElementById('lobby-list');
+      
+      if (players.length === 0) {
+        list.innerHTML = `<p style="color: var(--text-muted)">Esperando participantes...</p>`;
+      } else {
+        list.innerHTML = players.map(p => `<div class="player-chip">${p[2]} ${p[0]}</div>`).join('');
+      }
     }
 
+    // --- RENDERIZAR JUEGO EN VIVO ---
     if (state === 'JUEGO') {
       document.getElementById('leaderboard-body').innerHTML = sorted.map((p, i) => `
         <tr class="rank-row">
@@ -125,6 +155,7 @@
         </tr>`).join('');
     }
 
+    // --- RENDERIZAR PODIO FINAL ---
     if (state === 'FINAL' && lastState !== 'FINAL') {
       showFinalScreen(sorted);
     }
@@ -136,10 +167,9 @@
     const p2 = sorted[1] || ["-", 0, ""];
     const p3 = sorted[2] || ["-", 0, ""];
 
-    // 1. Dibujar Podio
     document.getElementById('podium-area').innerHTML = `
       <div class="podium-spot">
-        <div style="font-size:3rem">${p2[2]}</div>
+        <div style="font-size:3rem">${p2[2] || ''}</div>
         <div class="podium-bar silver">2º</div>
         <div style="font-weight:bold; margin-top:10px;">${p2[0]}</div>
       </div>
@@ -149,13 +179,12 @@
         <div style="font-weight:bold; font-size:1.4rem; color:var(--accent-gold);">${p1[0]}</div>
       </div>
       <div class="podium-spot">
-        <div style="font-size:3rem">${p3[2]}</div>
+        <div style="font-size:3rem">${p3[2] || ''}</div>
         <div class="podium-bar bronze">3º</div>
         <div style="font-weight:bold; margin-top:10px;">${p3[0]}</div>
       </div>
     `;
 
-    // 2. Dibujar TABLA DE TODOS (incluyendo los que perdieron)
     document.getElementById('final-list-full').innerHTML = sorted.map((p, i) => `
       <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #334155; ${i > sorted.length - 4 && sorted.length > 5 ? 'color:#ef4444;' : ''}">
         <span><b>#${i+1}</b> ${p[2]} ${p[0]}</span>
@@ -168,11 +197,15 @@
     const fd = new FormData();
     fd.append('action', 'admin_set_state');
     fd.append('state', newState);
-    fetch(SCRIPT_URL, { method: 'POST', body: fd });
+    fetch(SCRIPT_URL, { method: 'POST', body: fd })
+      .then(() => console.log("Estado cambiado a:", newState))
+      .catch(err => alert("Error al cambiar estado: " + err));
   }
 
   function resetSystem() {
-    if(confirm("¿Borrar todo?")) updateState('LOBBY');
+    if(confirm("¿Estás seguro de REINICIAR? Se borrarán todos los puntos y jugadores.")) {
+      updateState('LOBBY');
+    }
   }
 </script>
 </body>
