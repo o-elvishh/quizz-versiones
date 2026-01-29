@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Participante - Quizz TED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- PALETA DARK PRO --- */
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-gold: #fbbf24;
+      --border-color: #334155;
+      --input-bg: #0f172a;
+      --radius: 16px;
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+
+    .card { background: var(--card-bg); width: 100%; max-width: 450px; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; overflow: hidden; text-align: center; }
+    .hidden { display: none; }
+
+    h2 { color: var(--primary); font-weight: 800; margin-top: 0; }
+    
+    input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1rem; margin: 20px 0; background: var(--input-bg); color: var(--text-main); text-align: center; }
+    input:focus { border-color: var(--primary); }
+    
+    button { background: linear-gradient(to right, var(--primary), var(--primary-hover)); color: white; border: none; padding: 16px; width: 100%; border-radius: 50px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: transform 0.2s; box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5); }
+    button:active { transform: scale(0.96); }
+
+    /* Emojis */
+    .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; position: relative; z-index: 10; }
+    .emoji-btn { cursor: pointer; padding: 10px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 1.5rem; transition: all 0.2s; user-select: none; }
+    .emoji-btn.selected { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); transform: scale(1.15); }
+
+    /* Barra de Tiempo */
+    .timer-container { width: 100%; height: 6px; background: var(--border-color); position: absolute; top: 0; left: 0; z-index: 50; }
+    .timer-bar { width: 100%; height: 100%; background: var(--primary); transition: width 1s linear; }
+    .animate-timer { animation: countdown 15s linear forwards; }
+    @keyframes countdown { from { width: 100%; } to { width: 0%; } }
+
+    /* Opciones */
+    .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .opt-btn { background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; cursor: pointer; text-align: left; transition: all 0.1s; }
+    .opt-btn:active { background: var(--border-color); transform: scale(0.98); }
+
+    /* Feedback */
+    .bg-green { background: var(--accent-green) !important; color: white !important; border: none !important; }
+    .bg-red { background: var(--accent-red) !important; color: white !important; border: none !important; }
+    .status-icon { font-size: 5rem; margin: 20px 0; }
+    
+    #q-text { font-size: 1.15rem; line-height: 1.4; color: white; margin-bottom: 30px; }
+    .text-muted-light { color: var(--text-muted); }
+
+    /* Estilos Especiales FINAL */
+    .win-gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+    .lose-punishment { color: var(--accent-red); font-weight: bold; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+
+  <div id="view-login" class="card">
+    <h2>Elige tu Avatar</h2>
+    <div class="emoji-grid" id="emoji-container">
+      <div class="emoji-btn selected">👽</div>
+      <div class="emoji-btn">🤖</div>
+      <div class="emoji-btn">🚀</div>
+      <div class="emoji-btn">🧠</div>
+      <div class="emoji-btn">🦄</div>
+      <div class="emoji-btn">🦊</div>
+      <div class="emoji-btn">😎</div>
+      <div class="emoji-btn">⚡</div>
+      <div class="emoji-btn">🐱</div>
+      <div class="emoji-btn">🍕</div>
+    </div>
+    <input type="text" id="username" placeholder="Tu Nombre Completo">
+    <button onclick="register()">ENTRAR AL LOBBY</button>
+  </div>
+
+  <div id="view-wait" class="card hidden">
+    <div class="status-icon" id="wait-icon">⏳</div>
+    <h3 id="wait-title">Esperando al Host...</h3>
+    <p class="text-muted-light" id="wait-desc">La sesión comenzará pronto</p>
+  </div>
+
+  <div id="view-question" class="card hidden">
+    <div class="timer-container"><div id="visual-timer" class="timer-bar"></div></div>
+    <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top:15px;" id="q-num">PREGUNTA</div>
+    <h2 id="q-text">¿Texto?</h2>
+    <div id="options-area" class="options-grid"></div>
+  </div>
+
+  <div id="view-feedback" class="card hidden">
+    <div id="fb-icon" class="status-icon"></div>
+    <h2 id="fb-title"></h2>
+    <h3 id="fb-points"></h3>
+    <p style="margin-top: 20px; opacity: 0.9;">Atento a la pantalla principal</p>
+  </div>
+
+<script>
+  // ⚠️ PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ ⚠️
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw69x0Dn-ypruAQzYlLstORveZQYiffrrynHE4PR8OSo6DYRVPR2iL3GW5V8Rwcz5fh_Q/exec";
+
+  // --- PREGUNTAS SINCRONIZADAS ---
+  const questions = [
+    { q: "¿Cuál es el \"principio clave\" que debe guiar cualquier charla según el texto?", opts: ["Demostrar superioridad técnica", "Ir a dar, no a recibir", "Conseguir financiamiento", "Terminar exactamente a tiempo"], ans: 1 },
+    { q: "¿Por qué el autor afirma que detallar la historia interna de tu laboratorio es un error?", opts: ["Porque es información confidencial", "Porque es aburrido para casi todos los demás", "Porque nadie cree en el éxito ajeno", "Porque las fotos de edificios distraen"], ans: 1 },
+    { q: "¿Por qué la generosidad es la mejor estrategia para un orador?", opts: ["Porque lo hace ver más humilde", "Porque evita preguntas difíciles", "Porque provoca una respuesta positiva", "Porque acorta la duración del evento"], ans: 2 },
+    { q: "El autor compara la inspiración con el amor porque:", opts: ["Es un sentimiento irracional", "Si la buscas directamente, genera rechazo", "Solo ocurre una vez en la vida", "Requiere mucha paciencia"], ans: 1 },
+    { q: "¿Cuál es la característica principal de la \"Actuación Inspirada\"?", opts: ["Hablar con demasiada pasión", "Usar muchos tecnicismos médicos", "Mucho estilo y muy poca sustancia", "Forzar la voz para conmover"], ans: 2 },
+    { q: "¿Qué hace el público cuando detecta que el objetivo del orador es \"venderle\" algo?", opts: ["Toma notas con más interés", "Interrumpe para pedir detalles", "Se refugia en su celular", "Lo respeta por su ambición profesional"], ans: 2 },
+    { q: "Según el texto, ¿cuál es la fuente de la verdadera inspiración del público?", opts: ["Pedirles que crean en tus sueños", "Usar trucos de manipulación emocional", "La autenticidad y el trabajo generoso", "Una ovación de pie coreografiada"], ans: 2 },
+    { q: "¿Qué mensaje implícito envía a la audiencia un ponente que alardea de ir \"poco preparado\"?", opts: ["Que es un genio de la improvisación", "Que es una persona muy honesta", "Que el tiempo del público no importa", "Que el proyecto es muy sencillo"], ans: 2 },
+    { q: "Un ponente que dice \"diré lo que me salga\" por falta de preparación, ¿en qué trampa cae?", opts: ["Actuación inspirada", "Divagación", "Organización aburrida", "Sinceridad académica"], ans: 1 },
+    { q: "Para evitar que \"tu organización sea un rollo\", ¿en qué debe centrarse el discurso?", opts: ["En el talento del equipo de trabajo", "En los logros y productos previos", "En el poder de las ideas y el trabajo", "En la complejidad del organigrama"], ans: 2 }
+  ];
+
+  let myName = "", myAvatar = "👽", lastKnownState = "", currentQStart = 0, hasAnsweredCurrent = false, lastQIdx = -1;
+
+  document.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+      this.classList.add('selected');
+      myAvatar = this.innerText;
+    });
+  });
+
+  function register() {
+    myName = document.getElementById('username').value.trim();
+    if(!myName) return alert("¡Escribe tu nombre!");
+    const fd = new FormData();
+    fd.append('action', 'register');
+    fd.append('nombre', myName);
+    fd.append('avatar', myAvatar);
+    fetch(SCRIPT_URL, { method:'POST', body:fd });
+    switchView('view-wait');
+    
+    // 🔥 MODO TURBO: Actualizar cada 500ms (0.5 segundos) 🔥
+    setInterval(pollServer, 700);
+  }
+
+  async function pollServer() {
+    try {
+      const res = await fetch(SCRIPT_URL);
+      const data = await res.json();
+      handleState(data);
+    } catch(e) { }
+  }
+
+  function handleState(data) {
+    const serverState = data.state;
+    const players = data.players || [];
+
+    // DETECCIÓN DE FINAL (Para mostrar premios/castigos)
+    if (serverState === "FINAL" && lastKnownState !== "FINAL") {
+      lastKnownState = serverState;
+      showFinalResult(players);
+      return;
+    }
+
+    if (serverState === lastKnownState && serverState !== "RANKING") return;
+    lastKnownState = serverState;
+
+    if (serverState === "LOBBY") { 
+      resetWaitScreen();
+      hasAnsweredCurrent = false; 
+    } 
+    else if (serverState === "RANKING") { 
+      switchView('view-wait'); 
+      document.getElementById('wait-icon').innerText = "📊";
+      document.getElementById('wait-title').innerText = "Mira el Ranking"; 
+      document.getElementById('wait-desc').innerText = "¿Subiste o bajaste?";
+    }
+    else if (serverState.startsWith("Q")) {
+      const idx = parseInt(serverState.substring(1));
+      if (idx !== lastQIdx) { 
+        lastQIdx = idx; 
+        hasAnsweredCurrent = false; 
+      }
+      if (!hasAnsweredCurrent) {
+        showQuestion(idx);
+      } else {
+        switchView('view-wait');
+        document.getElementById('wait-icon').innerText = "⏳";
+        document.getElementById('wait-title').innerText = "Respuesta Enviada";
+        document.getElementById('wait-desc').innerText = "Esperando al resto...";
+      }
+    }
+  }
+
+  function showFinalResult(players) {
+    switchView('view-wait');
+    const icon = document.getElementById('wait-icon');
+    const title = document.getElementById('wait-title');
+    const desc = document.getElementById('wait-desc');
+
+    // 1. Ordenar por puntos
+    players.sort((a,b) => b[1] - a[1]);
+
+    // 2. Mi posición
+    const myRank = players.findIndex(p => p[0] === myName);
+    const myScore = myRank !== -1 ? players[myRank][1] : 0;
+    const totalPlayers = players.length;
+
+    // 3. MENSAJES PERSONALIZADOS
+    if (myRank === 0) {
+      icon.innerText = "🏆";
+      title.innerText = "¡FELICIDADES " + myName.toUpperCase() + "!";
+      title.className = "win-gold"; 
+      desc.innerHTML = "¡ERES EL <b>1ER LUGAR</b>!<br>Ganaste con " + myScore + " pts";
+    } 
+    else if (myRank === 1) {
+      icon.innerText = "🥈";
+      title.innerText = "¡FELICIDADES!";
+      desc.innerHTML = "¡Quedaste en <b>2do Lugar</b>!<br>Excelente trabajo.";
+    } 
+    else if (myRank === 2) {
+      icon.innerText = "🥉";
+      title.innerText = "¡FELICIDADES!";
+      desc.innerHTML = "¡Quedaste en <b>3er Lugar</b>!<br>Entraste al podio.";
+    } 
+    // 🔥 LÓGICA DE LOS 3 ÚLTIMOS (CASTIGO) 🔥
+    else if (totalPlayers >= 5 && myRank >= totalPlayers - 3) {
+      icon.innerText = "🤡";
+      title.innerText = "¡LÁSTIMA " + myName.toUpperCase() + "!";
+      title.className = "lose-punishment";
+      desc.innerHTML = "Quedaste al final de la tabla...<br><b>¡TE TOCA TRAER EL PREMIO!</b> 🍩";
+    } 
+    else {
+      icon.innerText = "🎉";
+      title.innerText = "¡GRACIAS POR JUGAR!";
+      desc.innerText = "Quedaste en el puesto #" + (myRank + 1) + "\nCon " + myScore + " puntos.";
+    }
+  }
+
+  function resetWaitScreen() {
+    switchView('view-wait');
+    document.getElementById('wait-icon').innerText = "⏳";
+    document.getElementById('wait-title').innerText = "Esperando al Host...";
+    document.getElementById('wait-title').className = "";
+    document.getElementById('wait-desc').innerText = "La sesión comenzará pronto";
+  }
+
+  function showQuestion(idx) {
+    const q = questions[idx];
+    document.getElementById('q-num').innerText = "PREGUNTA " + (idx+1);
+    document.getElementById('q-text').innerText = q.q;
+    
+    // Reinicio instantáneo de la barra
+    const timer = document.getElementById('visual-timer');
+    timer.classList.remove('animate-timer');
+    void timer.offsetWidth; 
+    timer.classList.add('animate-timer');
+
+    // Renderizado instantáneo de opciones
+    const area = document.getElementById('options-area');
+    area.innerHTML = q.opts.map((opt, i) => 
+      `<div class="opt-btn" onclick="sendAnswer(${i}, ${idx})">${opt}</div>`
+    ).join('');
+
+    currentQStart = Date.now();
+    switchView('view-question');
+  }
+
+  function sendAnswer(selectedIdx, qIdx) {
+    if(hasAnsweredCurrent) return;
+    hasAnsweredCurrent = true;
+
+    const correctIdx = questions[qIdx].ans;
+    let points = 0;
+    
+    const icon = document.getElementById('fb-icon');
+    const title = document.getElementById('fb-title');
+    const fbPoints = document.getElementById('fb-points');
+    const card = document.getElementById('view-feedback');
+
+    if (selectedIdx === correctIdx) {
+      const elapsed = (Date.now() - currentQStart) / 1000;
+      points = Math.max(500, Math.round(1500 - (elapsed * 60))); 
+      
+      card.className = "card bg-green";
+      icon.innerText = "😎";
+      title.innerText = "¡CORRECTO!";
+      fbPoints.innerText = "+" + points + " pts";
+    } else {
+      card.className = "card bg-red";
+      icon.innerText = "😢";
+      title.innerText = "INCORRECTO";
+      fbPoints.innerText = "0 pts";
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'answer');
+    fd.append('nombre', myName);
+    fd.append('points', points);
+    fetch(SCRIPT_URL, { method:'POST', body:fd });
+
+    switchView('view-feedback');
+  }
+
+  function switchView(id) {
+    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
